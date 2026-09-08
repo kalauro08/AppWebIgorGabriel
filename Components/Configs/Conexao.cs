@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using MySql.Data.MySqlClient;
 
 namespace AppWebIgorGabriel.Components.Configs
 {
