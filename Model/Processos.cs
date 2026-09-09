@@ -1,4 +1,4 @@
-﻿namespace AppWebIgorGabriel.Components.Model
+﻿namespace AppWebIgorGabriel.Model
 
 {
     public class Processo

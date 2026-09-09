@@ -1,27 +1,27 @@
-﻿using AppWebIgorGabriel.Components.Configs;
-using AppWebIgorGabriel.Components.Model;
+﻿using AppWebIgorGabriel.Configs;
+using AppWebIgorGabriel.Model;
 using MySql.Data.MySqlClient;
 
-namespace AppWebIgorGabriel.Components.ProcessosDAO
+namespace AppWebIgorGabriel.DAO
 {
-    public class ProcessosDAO
+    public class ProcessoDAO
     {
         private readonly Conexao _conexao;
 
-        // A Conexao é injetada pelo container de dependências
-        public ProcessosDAO(Conexao conexao)
+     
+        public ProcessoDAO(Conexao conexao)
         {
             _conexao = conexao;
         }
 
-        // READ — lista todos os processos
         public List<Processo> Listar()
         {
             var lista = new List<Processo>();
 
             using var conexao = _conexao.GetConnection();
             using var comando = new MySqlCommand(
-                "SELECT id_pro, numero_pro, data_pro, interessado_pro, assunto_pro, descricao_pro, situacao_pro * FROM processos;"
+                "SELECT id_pro, numero_pro, data_pro, interessado_pro, assunto_pro, descricao_pro, situacao_pro FROM processos;", 
+                conexao
             );
 
             using var leitor = comando.ExecuteReader();
@@ -34,7 +34,7 @@ namespace AppWebIgorGabriel.Components.ProcessosDAO
             return lista;
         }
 
-        // Converte a linha atual do leitor em um objeto Processo.
+
         private static Processo MapearProcesso(MySqlDataReader leitor)
         {
             return new Processo
