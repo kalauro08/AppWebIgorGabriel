@@ -1,4 +1,5 @@
-﻿using AppWebIgorGabriel.Configs;
+﻿
+using AppWebIgorGabriel.Configs;
 using AppWebIgorGabriel.Model;
 using MySql.Data.MySqlClient;
 
@@ -18,8 +19,12 @@ namespace AppWebIgorGabriel.DAO
             var lista = new List<Processo>();
 
             using var conexao = _conexao.GetConnection();
+
             using var comando = new MySqlCommand(
-                "SELECT id_pro, numero_pro, data_pro, interessado_pro, assunto_pro, descricao_pro, situacao_pro FROM processos;",
+                @"SELECT id_pro, numero_pro, data_pro,
+                         interessado_pro, assunto_pro,
+                         descricao_pro, situacao_pro
+                  FROM processos;",
                 conexao
             );
 
@@ -32,7 +37,29 @@ namespace AppWebIgorGabriel.DAO
 
             return lista;
         }
+        public Processo? ObterPorId(int id)
+        {
+            using var conexao = _conexao.GetConnection();
 
+            string sql = @"SELECT id_pro, numero_pro, data_pro,
+                                  interessado_pro, assunto_pro,
+                                  descricao_pro, situacao_pro
+                           FROM processos
+                           WHERE id_pro = @id";
+
+            using var comando = new MySqlCommand(sql, conexao);
+
+            comando.Parameters.AddWithValue("@id", id);
+
+            using var leitor = comando.ExecuteReader();
+
+            if (!leitor.Read())
+            {
+                return null;
+            }
+
+            return MapearProcesso(leitor);
+        }
         private static Processo MapearProcesso(MySqlDataReader leitor)
         {
             return new Processo
@@ -52,13 +79,13 @@ namespace AppWebIgorGabriel.DAO
             using var conexao = _conexao.GetConnection();
 
             string sql = @"INSERT INTO processos
-                (numero_pro, data_pro, interessado_pro, assunto_pro, descricao_pro, situacao_pro)
+                (numero_pro, data_pro, interessado_pro,
+                 assunto_pro, descricao_pro, situacao_pro)
                 VALUES
-                (@numero, @data, @interessado, @assunto, @descricao, @situacao)";
+                (@numero, @data, @interessado,
+                 @assunto, @descricao, @situacao)";
 
-            using var comando = conexao.CreateCommand();
-
-            comando.CommandText = sql;
+            using var comando = new MySqlCommand(sql, conexao);
 
             comando.Parameters.AddWithValue("@numero", processo.Numero);
             comando.Parameters.AddWithValue("@data", processo.Data);
@@ -66,6 +93,32 @@ namespace AppWebIgorGabriel.DAO
             comando.Parameters.AddWithValue("@assunto", processo.Assunto);
             comando.Parameters.AddWithValue("@descricao", processo.Descricao);
             comando.Parameters.AddWithValue("@situacao", processo.Situacao);
+
+            comando.ExecuteNonQuery();
+        }
+
+        public void Atualizar(Processo processo)
+        {
+            using var conexao = _conexao.GetConnection();
+
+            string sql = @"UPDATE processos
+                           SET numero_pro = @numero,
+                               data_pro = @data,
+                               interessado_pro = @interessado,
+                               assunto_pro = @assunto,
+                               descricao_pro = @descricao,
+                               situacao_pro = @situacao
+                           WHERE id_pro = @id";
+
+            using var comando = new MySqlCommand(sql, conexao);
+
+            comando.Parameters.AddWithValue("@numero", processo.Numero);
+            comando.Parameters.AddWithValue("@data", processo.Data);
+            comando.Parameters.AddWithValue("@interessado", processo.Interessado);
+            comando.Parameters.AddWithValue("@assunto", processo.Assunto);
+            comando.Parameters.AddWithValue("@descricao", processo.Descricao);
+            comando.Parameters.AddWithValue("@situacao", processo.Situacao);
+            comando.Parameters.AddWithValue("@id", processo.Id);
 
             comando.ExecuteNonQuery();
         }
